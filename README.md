@@ -6,7 +6,7 @@
 <img src=resources/logo.svg width="40%"/>
 </div>
 <p align="center">
-    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://t.co/b6zGxJvzzS" target="_blank">Discord</a> communities.
+    👋 Join our <a href="resources/WECHAT.md" target="_blank">WeChat</a> and <a href="https://discord.gg/eQbGCYS9ym" target="_blank">Discord</a> communities.
     <br>
     📖 Check out the GLM-4.6V <a href="https://z.ai/blog/glm-4.6v" target="_blank">blog</a> and GLM-4.5V & GLM-4.1V <a href="https://arxiv.org/abs/2507.01006" target="_blank">paper</a>.
     <br>

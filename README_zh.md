@@ -6,7 +6,7 @@
 <img src=resources/logo.svg width="40%"/>
 </div>
 <p align="center">
-    👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和 <a href="https://t.co/b6zGxJvzzS" target="_blank">Discord</a> 社区。
+    👋 加入我们的 <a href="resources/WECHAT.md" target="_blank">微信</a> 和 <a href="https://discord.gg/eQbGCYS9ym" target="_blank">Discord</a> 社区。
     <br>
     📖 查看 GLM-4.6V 的<a href="https://z.ai/blog/glm-4.6v" target="_blank"> 技术博客 </a>以及 GLM-4.5V 与 GLM-4.1V 的<a href="https://arxiv.org/abs/2507.01006" target="_blank"> 论文 </a>。    <br>
     📍<a href="https://chat.z.ai/" target="_blank">在线体验</a> ，或使用 <a href="https://docs.z.ai/guides/vlm/glm-4.6v" target="_blank">API</a>。
