@@ -1,7 +1,7 @@
 ---
 name: glmv-stock-analyst
 description: >
-  股票分析与涨跌预测。
+  股票分析与涨跌预测分析。
   在用户表达分析、判断或预测意图时触发，如“分析一下腾讯”、“0700最近走势如何”、“XX能不能买”、“预测一下后续走势”、“生成一份分析报告”等；
   对于简单查询类需求（如“腾讯当前价格是多少”、“茅台代码是什么”）不触发本 Skill。
   支持港股、A股、美股，整合多源数据（包括新闻、基本面、技术面、资金流及宏观信息）进行多维综合分析，输出图文结合、包含可视化图表的结构化分析报告。
@@ -12,9 +12,9 @@ metadata:
       bins:
         - python
         - bash
-    emoji: "✍️"
     source: https://github.com/zai-org/GLM-V/tree/main/skills/glmv-stock-analyst
     homepage: https://github.com/zai-org/GLM-V/tree/main/skills/glmv-stock-analyst
+    emoji: "✍️"
 ---
 
 # stock-analyst
@@ -22,8 +22,8 @@ metadata:
 > **路径约定：**
 >
 > - `{SKILL_DIR}` 指向 skill 根目录（即 SKILL.md 所在目录），脚本位于 `{SKILL_DIR}/scripts/`
-> - `{AGENT_WORKSPACE}` 指向 agent workspace (即 openclaw.json中定义的workspace字段的内容，一般为 `~/.openclaw/workspace`)
-> - `{DATA_DIR}` 为总的数据输出目录，定义为`{AGENT_WORKSPACE}/stock_data_output`
+> - **数据输出**默认到 agent 当前工作目录（即 workspace）下的 `stock_data_output/`，不放在 skill 目录内
+> - 脚本通过 `os.getcwd()` 自动定位 workspace，无需手动指定路径
 
 ## 目录结构
 
@@ -41,8 +41,8 @@ metadata:
     ├── hk_stock_knowledge.md     # 港股/A股专业知识
     └── sensitive_companies.md    # 敏感标的合规规则
 
-{DATA_DIR}/                       # ← 总的数据输出目录
-├── 0700_20260331_2030/           # ← 例：腾讯股票的一次分析任务
+stock_data_output/                # ← 输出目录（workspace 下，每次运行自动创建）
+├── 0700_20260331_2030/           # ← 例：腾讯的一次分析任务
 │   ├── data.json                 # 原始数据
 │   ├── summary.json              # 数据摘要
 │   ├── kline_em.png              # 日K线图
@@ -66,7 +66,7 @@ metadata:
 ```
 ┌─────────────┐   数据+图片(独立任务文件夹)   ┌─────────────┘
 │ fetch_all.py │ ─────────────────────────→  │  主模型(你)  │
-│ (数据采集)   │   {DATA_DIR}/                │ (多模态分析)  │
+│ (数据采集)   │   stock_data_output/                    │ (多模态分析)  │
 │             │   {code}_{timestamp}/        │ + web_search  │
 │             │   ├─ data.json              │ + 精准新闻    │
 │             │   ├─ summary.json           │               │
@@ -167,7 +167,7 @@ export TUSHARE_TOKEN="your_token"
 
 > **环境说明：** 首次使用需先运行 `bash setup.sh` 创建 venv 并安装依赖。之后所有命令统一使用 `./venv/bin/python`。
 
-脚本运行完成后会输出到 agent workspace 下的 `stock_data_output/{code}_{时间戳}/`目录，将此目录记为`{TASK_DIR}`，也就是`{TASK_DIR}={DATA_DIR}/stock_data_output/{code}_{时间戳}/`：
+脚本运行完成后会输出到 agent workspace 下的 `stock_data_output/{code}_{时间戳}/`：
 
 | 文件                              | 内容                | 用途                |
 | --------------------------------- | ------------------- | ------------------- |
@@ -177,7 +177,7 @@ export TUSHARE_TOKEN="your_token"
 | `kline_intraday.png`              | 分时图              | 当日走势            |
 | *(可能还有)*周K/月K/估值/资金流图 | 其他图表            | 补充分析            |
 
-**重要：准确记录目录{TASK_DIR}，后续步骤都要用到。**
+**重要：记录下 output_dir 路径（stdout 中会打印），后续步骤都要用到。**
 
 ---
 
@@ -186,9 +186,9 @@ export TUSHARE_TOKEN="your_token"
 #### 2a. 读取 summary.json 和 data.json
 
 ```bash
-# TASK_DIR 会打印在脚本 stdout 中，路径在 workspace 下
-read("{TASK_DIR}/summary.json")
-read("{TASK_DIR}/data.json")
+# output_dir 会打印在脚本 stdout 中，路径在 workspace 下
+read("{output_dir}/summary.json")
+read("{output_dir}/data.json")
 ```
 
 重点关注：
@@ -202,14 +202,14 @@ read("{TASK_DIR}/data.json")
 
 ```python
 # 必看：日K线图（最重要）
-read("{TASK_DIR}/kline_em.png")
+read("{output_dir}/kline_em.png")
 
 # 必看：分时图（当日走势）
-read("{TASK_DIR}/kline_intraday.png")
+read("{output_dir}/kline_intraday.png")
 
 # 有则看：其他图表
-read("{TASK_DIR}/kline_weekly.png")     # 周K（如有）
-read("{TASK_DIR}/capital_flow.png")     # 资金流向（如有）
+read("{output_dir}/kline_weekly.png")     # 周K（如有）
+read("{output_dir}/capital_flow.png")     # 资金流向（如有）
 ```
 
 **看图时关注：**
@@ -351,7 +351,7 @@ web_search "{公司名} 业绩演示 投资者演示 PPT 2026"
 **写入方式：**
 
 ```bash
-write(content=报告markdown内容, path="{TASK_DIR}/report.md")
+write(content=报告markdown内容, path="{output_dir}/report.md")
 ```
 
 ---
@@ -359,8 +359,8 @@ write(content=报告markdown内容, path="{TASK_DIR}/report.md")
 ### Step 6：⭐⭐ MD → HTML 并打开浏览器（必做，在回复用户之前）
 
 ```bash
-{SKILL_DIR}/scripts/venv/bin/python {SKILL_DIR}/scripts/md2html.py {TASK_DIR}/report.html -i {TASK_DIR}/report.md
-open {TASK_DIR}/report.html
+{SKILL_DIR}/scripts/venv/bin/python {SKILL_DIR}/scripts/md2html.py {output_dir}/report.html -i {output_dir}/report.md
+open {output_dir}/report.html
 ```
 
 **md2html.py 会自动：**
@@ -380,8 +380,8 @@ open {TASK_DIR}/report.html
 **用户要求导出时执行：**
 
 ```bash
-{SKILL_DIR}/scripts/venv/bin/python {SKILL_DIR}/scripts/export_report.py {TASK_DIR}/report.md --format pdf
-open {TASK_DIR}/report.pdf
+{SKILL_DIR}/scripts/venv/bin/python {SKILL_DIR}/scripts/export_report.py {output_dir}/report.md --format pdf
+open {output_dir}/report.pdf
 ```
 
 > **提示话术：** "需要导出 PDF 版吗？告诉我即可生成。"

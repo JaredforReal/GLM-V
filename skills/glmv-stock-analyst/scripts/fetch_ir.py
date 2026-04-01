@@ -147,9 +147,9 @@ def main():
     parser = argparse.ArgumentParser(description="IR 文档获取 + 关键页面提取")
     parser.add_argument("--url", type=str, help="PDF 下载 URL")
     parser.add_argument("--file", type=str, help="本地 PDF 文件路径")
-    parser.add_argument("--output_dir", default="./ir_output", help="输出目录")
+    parser.add_argument("--output-dir", default="./ir_output", help="输出目录")
     parser.add_argument(
-        "--max_pages", type=int, default=8, help="最多提取几页关键图表页"
+        "--max-pages", type=int, default=8, help="最多提取几页关键图表页"
     )
     parser.add_argument("--dpi", type=int, default=200, help="图片分辨率")
     args = parser.parse_args()
