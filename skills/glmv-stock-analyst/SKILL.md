@@ -17,7 +17,7 @@ metadata:
     homepage: https://github.com/zai-org/GLM-V/tree/main/skills/glmv-stock-analyst
 ---
 
-# stock-analyst v3.2
+# stock-analyst
 
 > **路径约定：**
 >
